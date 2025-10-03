@@ -32,7 +32,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(522, 522);
+            ClientSize = new Size(522, 575);
             Controls.Add(panelBoard);
             Name = "Form1";
             Text = "Buscaminas - WinForms";

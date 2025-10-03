@@ -17,13 +17,117 @@ namespace WinFormsApp1
         private int _mines = 15;
         private int _cellSize = 50;
 
+
+        private Panel _headerPanel = null!;
+        private Label _lblMines = null!;
+        private Label _lblTime = null!;
+        private Label _lblScore = null!;
+        private Button _btnReset = null!;
+        private System.Windows.Forms.Timer _timer = null!;
+        private int _elapsedSeconds = 0;
+        private int _flagsPlaced = 0;
+        private int _score = 0; // celdas seguras reveladas
         public Form1()
         {
-            InitializeComponent();   
-            CreateBoardUI();
-
+            InitializeComponent();
+            BuildHeaderUI();                 // crea HUD y _timer
+            NewGame(_rows, _cols, _mines, _cellSize); // crea tablero + resetea HUD
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
+        }
+
+        private void NewGame(int rows, int cols, int mines, int cellSize = 28)
+        {
+            if (rows <= 0 || cols <= 0) throw new ArgumentException("Dimensiones inválidas.");
+            if (mines < 0 || mines >= rows * cols) throw new ArgumentException("Cantidad de minas inválida.");
+
+            _rows = rows; _cols = cols; _mines = mines; _cellSize = cellSize;
+
+            _timer?.Stop();                // <-- por si se llama antes de BuildHeaderUI
+            _elapsedSeconds = 0;
+            _flagsPlaced = 0;
+            _score = 0;
+            _minesPlaced = false;
+
+            CreateBoardUI();
+            UpdateHud();
+        }
+
+
+        private void BuildHeaderUI()
+        {
+            _headerPanel = new Panel
+            {
+                Location = new Point(12, 12),
+                Size = new Size(600, 44),
+                BackColor = Color.FromArgb(235, 235, 235)
+            };
+
+            _lblMines = new Label
+            {
+                AutoSize = true,
+                Font = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Bold),
+                Location = new Point(8, 12),
+                Text = "Minas: 0"
+            };
+
+            _btnReset = new Button
+            {
+                Size = new Size(40, 28),
+                Location = new Point(140, 8),
+                Text = "",                
+                FlatStyle = FlatStyle.Flat
+            };
+            _btnReset.FlatAppearance.BorderSize = 0;
+
+            _btnReset.BackgroundImage = Properties.Resources.reset1;
+            _btnReset.BackgroundImageLayout = ImageLayout.Zoom;
+
+            _btnReset.Click += (s, e) => NewGame(_rows, _cols, _mines, _cellSize);
+
+            _lblScore = new Label
+            {
+                AutoSize = true,
+                Font = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Bold),
+                Location = new Point(200, 12),
+                Text = "Score: 0"
+            };
+
+            _lblTime = new Label
+            {
+                AutoSize = true,
+                Font = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Bold),
+                Location = new Point(360, 12),
+                Text = "Tiempo: 00:00"
+            };
+
+            _headerPanel.Controls.Add(_lblMines);
+            _headerPanel.Controls.Add(_btnReset);
+            _headerPanel.Controls.Add(_lblScore);
+            _headerPanel.Controls.Add(_lblTime);
+            this.Controls.Add(_headerPanel);
+
+            // Mueve el tablero debajo del header
+            panelBoard.Top = _headerPanel.Bottom + 8;
+
+            // Timer del reloj
+            _timer = new System.Windows.Forms.Timer { Interval = 1000 };
+            _timer.Tick += Timer_Tick;
+        }
+
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            _elapsedSeconds++;
+            UpdateHud();
+        }
+
+        private void UpdateHud()
+        {
+            int remaining = Math.Max(0, _mines - _flagsPlaced);
+            _lblMines.Text = $"Minas: {remaining}";
+            var ts = TimeSpan.FromSeconds(_elapsedSeconds);
+            _lblTime.Text = $"Tiempo: {ts.Minutes:00}:{ts.Seconds:00}";
+            _lblScore.Text = $"Score: {_score}";
         }
 
         private void CreateBoardUI()
@@ -71,6 +175,7 @@ namespace WinFormsApp1
             {
                 _board.PlaceMinesAvoidingFirstClick(p);
                 _minesPlaced = true;
+                _timer.Start();               // <-- ¡arranca el reloj aquí!
             }
 
             if (e.Button == MouseButtons.Right)
@@ -96,17 +201,20 @@ namespace WinFormsApp1
             if (cell.Flagged)
             {
                 btn.Text = "";
-                btn.Image = Properties.Resources.flag;  // "flag" es el nombre del recurso
+                btn.Image = Properties.Resources.flag;
                 btn.ImageAlign = ContentAlignment.MiddleCenter;
-                btn.BackgroundImageLayout = ImageLayout.Stretch; // opcional: ajusta tamaño
+                btn.BackgroundImageLayout = ImageLayout.Stretch;
+                _flagsPlaced++;                 // <-- cuenta banderas
             }
             else
             {
                 btn.Image = null;
                 btn.Text = "";
+                _flagsPlaced = Math.Max(0, _flagsPlaced - 1); // <-- evita negativos
             }
-        }
 
+            UpdateHud();                        // <-- refresca “Minas:”
+        }
 
         private void HandleReveal(Point p)
         {
@@ -115,6 +223,7 @@ namespace WinFormsApp1
 
             if (cell.HasMine)
             {
+                _timer.Stop();                           // <-- para reloj al perder
                 RevealAllMines();
                 _buttons[p.Y, p.X].BackColor = Color.IndianRed;
                 MessageBox.Show("¡BOOM! Fin del juego.");
@@ -125,9 +234,16 @@ namespace WinFormsApp1
             foreach (var q in opened)
                 PaintCell(q);
 
+            _score += opened.Count;                      // <-- suma puntaje
+            UpdateHud();                                 // <-- refresca HUD
+
             if (CheckWin())
+            {
+                _timer.Stop();                           // <-- para reloj al ganar
                 MessageBox.Show("¡Ganaste!");
+            }
         }
+
 
         private void PaintCell(Point p)
         {
@@ -178,19 +294,6 @@ namespace WinFormsApp1
                 btn.Text = "";
             }
         }
-
-        private Color NumberColor(int n) => n switch
-        {
-            1 => Color.Blue,
-            2 => Color.Green,
-            3 => Color.Red,
-            4 => Color.Navy,
-            5 => Color.Maroon,
-            6 => Color.Teal,
-            7 => Color.Black,
-            8 => Color.Gray,
-            _ => Color.Black
-        };
 
         private void RevealAllMines()
         {
