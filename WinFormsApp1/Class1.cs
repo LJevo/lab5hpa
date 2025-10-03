@@ -36,10 +36,9 @@ namespace WinFormsApp1
                     Grid[r, c] = new Cell();
         }
 
-        /// <summary>
         /// Coloca las minas aleatoriamente evitando la celda del primer clic.
         /// Debe llamarse justo después del primer clic del jugador.
-        /// </summary>
+      
         public void PlaceMinesAvoidingFirstClick(Point firstClick)
         {
             // 1) Genera todas las posiciones excepto la del primer clic
@@ -69,7 +68,7 @@ namespace WinFormsApp1
 
         /// <summary>
         /// Calcula el número de minas alrededor de cada celda.
-        /// </summary>
+        
         private void ComputeAdjacentNumbers()
         {
             int[] dr = { -1, -1, -1, 0, 0, 1, 1, 1 };
@@ -98,7 +97,7 @@ namespace WinFormsApp1
             }
         }
 
-        /// <summary>
+        
         /// Revela una celda. Si es 0, hace BFS para abrir regiones vacías.
         /// Devuelve la lista de posiciones que quedaron abiertas en esta acción.
         /// </summary>
