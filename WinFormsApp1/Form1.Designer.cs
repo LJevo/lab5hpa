@@ -15,27 +15,29 @@
 
         private void InitializeComponent()
         {
-            this.panelBoard = new System.Windows.Forms.Panel();
-            this.SuspendLayout();
+            panelBoard = new Panel();
+            SuspendLayout();
             // 
             // panelBoard
             // 
-            this.panelBoard.Location = new System.Drawing.Point(12, 12);
-            this.panelBoard.Name = "panelBoard";
-            this.panelBoard.Size = new System.Drawing.Size(600, 600);
-            this.panelBoard.AutoScroll = true;
-            this.panelBoard.BackColor = System.Drawing.Color.LightGray;
-            this.panelBoard.TabIndex = 0;
+            panelBoard.AutoScroll = true;
+            panelBoard.BackColor = Color.LightGray;
+            panelBoard.Location = new Point(10, 11);
+            panelBoard.Name = "panelBoard";
+            panelBoard.Size = new Size(600, 600);
+            panelBoard.TabIndex = 0;
+            panelBoard.Paint += panelBoard_Paint;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(640, 640);
-            this.Controls.Add(this.panelBoard);
-            this.Name = "Form1";
-            this.Text = "Buscaminas - WinForms";
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(522, 522);
+            Controls.Add(panelBoard);
+            Name = "Form1";
+            Text = "Buscaminas - WinForms";
+            Load += Form1_Load;
+            ResumeLayout(false);
         }
 
         #endregion

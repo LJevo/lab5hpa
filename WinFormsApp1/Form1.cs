@@ -15,12 +15,15 @@ namespace WinFormsApp1
         private int _rows = 10;
         private int _cols = 10;
         private int _mines = 15;
-        private int _cellSize = 28;
+        private int _cellSize = 50;
 
         public Form1()
         {
-            InitializeComponent();   // <- del Designer
-            CreateBoardUI();         // <- creamos los botones y el Board
+            InitializeComponent();   
+            CreateBoardUI();
+
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
         }
 
         private void CreateBoardUI()
@@ -41,8 +44,10 @@ namespace WinFormsApp1
                         Tag = new Point(c, r),
                         Margin = Padding.Empty,
                         Padding = Padding.Empty,
-                        Font = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Bold),
-                        BackColor = Color.Gainsboro
+                        FlatStyle = FlatStyle.Flat,   // evita bordes 3D
+                        BackgroundImage = Properties.Resources.tile2,
+                        UseVisualStyleBackColor = false,// tu imagen de fondo
+                        BackgroundImageLayout = ImageLayout.Stretch, // ajusta al tamaño
                     };
 
                     btn.MouseUp += Cell_MouseUp;
@@ -87,9 +92,21 @@ namespace WinFormsApp1
 
             cell.Flagged = !cell.Flagged;
             var btn = _buttons[p.Y, p.X];
-            btn.Text = cell.Flagged ? "⚑" : "";
-            btn.ForeColor = Color.Firebrick;
+
+            if (cell.Flagged)
+            {
+                btn.Text = "";
+                btn.Image = Properties.Resources.flag;  // "flag" es el nombre del recurso
+                btn.ImageAlign = ContentAlignment.MiddleCenter;
+                btn.BackgroundImageLayout = ImageLayout.Stretch; // opcional: ajusta tamaño
+            }
+            else
+            {
+                btn.Image = null;
+                btn.Text = "";
+            }
         }
+
 
         private void HandleReveal(Point p)
         {
@@ -118,9 +135,48 @@ namespace WinFormsApp1
             var btn = _buttons[p.Y, p.X];
 
             btn.Enabled = false;
-            btn.BackColor = Color.WhiteSmoke;
-            btn.Text = cell.AdjacentMines > 0 ? cell.AdjacentMines.ToString() : "";
-            btn.ForeColor = NumberColor(cell.AdjacentMines);
+
+            if (cell.AdjacentMines == 0)
+            {
+                // Celda vacía (flood fill)
+                btn.BackgroundImage = Properties.Resources.blank_space2;
+                btn.BackgroundImageLayout = ImageLayout.Stretch;
+                btn.Text = "";
+            }
+            else
+            {
+                // Seleccionamos la imagen en base al número
+                switch (cell.AdjacentMines)
+                {
+                    case 1:
+                        btn.BackgroundImage = Properties.Resources.num1;
+                        break;
+                    case 2:
+                        btn.BackgroundImage = Properties.Resources.num2;
+                        break;
+                    case 3:
+                        btn.BackgroundImage = Properties.Resources.num3;
+                        break;
+                    case 4:
+                        btn.BackgroundImage = Properties.Resources.num4;
+                        break;
+                    case 5:
+                        btn.BackgroundImage = Properties.Resources.num5;
+                        break;
+                    case 6:
+                        btn.BackgroundImage = Properties.Resources.num6;
+                        break;
+                    case 7:
+                        btn.BackgroundImage = Properties.Resources.num7;
+                        break;
+                    case 8:
+                        btn.BackgroundImage = Properties.Resources.num8;
+                        break;
+                }
+
+                btn.BackgroundImageLayout = ImageLayout.Stretch;
+                btn.Text = "";
+            }
         }
 
         private Color NumberColor(int n) => n switch
@@ -145,8 +201,9 @@ namespace WinFormsApp1
                     if (_board.Grid[r, c].HasMine)
                     {
                         var b = _buttons[r, c];
-                        b.Text = "💣";
-                        b.BackColor = Color.Salmon;
+                        b.BackgroundImage = Properties.Resources.mine3;
+                        b.BackgroundImageLayout = ImageLayout.Stretch;
+                        b.Text = "";
                     }
                 }
             }
@@ -163,6 +220,16 @@ namespace WinFormsApp1
                         return false;
 
             return true;
+        }
+
+        private void panelBoard_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
