@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+//Jose Luis Silvera 8-1013-1016
+//Lenn Mendoza 8-1021-359
 
 namespace WinFormsApp1
 {

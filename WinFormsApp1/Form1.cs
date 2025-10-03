@@ -2,9 +2,12 @@
 using System.Drawing;
 using System.Windows.Forms;
 
+//Jose Luis Silvera 8-1013-1016
+//Lenn Mendoza 8-1021-359
+
 namespace WinFormsApp1
 {
-    public partial class Form1 : Form
+    public partial class Buscaminas : Form
     {
         // Inicializamos con null! para evitar CS8618 (se asignan en CreateBoardUI).
         private Board _board = null!;
@@ -27,7 +30,7 @@ namespace WinFormsApp1
         private int _elapsedSeconds = 0;
         private int _flagsPlaced = 0;
         private int _score = 0; // celdas seguras reveladas
-        public Form1()
+        public Buscaminas()
         {
             InitializeComponent();
             BuildHeaderUI();                 // crea HUD y _timer
